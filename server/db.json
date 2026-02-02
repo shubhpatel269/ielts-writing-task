@@ -1,53 +1,6 @@
 {
   "submissions": [
     {
-      "id": "eb1ad0f5-900e-45fd-aa42-145184c8ded8",
-      "studentName": "shubh",
-      "rollNo": "patel",
-      "taskType": "Task 1",
-      "question": "ewfwefwefwe",
-      "wordCount": 16,
-      "timeSpent": "1m 18s",
-      "imagePath": "/uploads/images/bab243bc-6eef-4fae-8343-e5f1d72b9010.png",
-      "pdfPath": "/uploads/pdfs/eb1ad0f5-900e-45fd-aa42-145184c8ded8.pdf",
-      "submittedAt": "2026-02-02T05:33:57.257Z"
-    },
-    {
-      "id": "c813f7e2-10f2-44e2-8993-90bd1a7e5be1",
-      "studentName": "parth",
-      "rollNo": "vadi",
-      "taskType": "Task 1",
-      "question": "copper",
-      "wordCount": 159,
-      "timeSpent": "0m 0s",
-      "imagePath": "/uploads/images/ab33ec62-80f5-4aa3-a441-7a42677ee1f0.png",
-      "pdfPath": "/uploads/pdfs/c813f7e2-10f2-44e2-8993-90bd1a7e5be1.pdf",
-      "submittedAt": "2026-02-02T05:42:17.052Z"
-    },
-    {
-      "id": "3323ac2f-cf9e-4f1e-bf59-ab4f0edad49e",
-      "studentName": "qwerfw",
-      "taskType": "Task 1",
-      "question": "ewrer",
-      "wordCount": 1,
-      "timeSpent": "1m 9s",
-      "imagePath": "/uploads/images/7f48a758-fce0-460a-96b6-74e9276aa29e.png",
-      "pdfPath": "/uploads/pdfs/3323ac2f-cf9e-4f1e-bf59-ab4f0edad49e.pdf",
-      "submittedAt": "2026-02-02T05:53:29.486Z"
-    },
-    {
-      "id": "02a767e9-39e9-425b-9635-9578963657a1",
-      "studentName": "Shubh Patel",
-      "taskType": "Task 2",
-      "question": "Some people believe that governments should increase taxes on unhealthy food in order to encourage people to eat more healthily. I partially agree with this idea, as higher taxes can influence eating habits, but they are not a complete solution on their own.",
-      "essayText": "Some people believe that governments should increase taxes on unhealthy food in order to encourage people to eat more healthily. I partially agree with this idea, as higher taxes can influence eating habits, but they are not a complete solution on their own.\r\n\r\nOn the one hand, increasing taxes on unhealthy food such as fast food, sugary drinks, and snacks can reduce their consumption. When prices rise, people may think twice before buying these products regularly. This approach has already been used successfully with cigarettes and alcohol in many countries. Moreover, unhealthy food is a major cause of problems such as obesity, diabetes, and heart disease. If people consume less junk food, it can reduce pressure on public healthcare systems. The money collected from these taxes can also be used to promote healthy eating programs or improve public health services.\r\n\r\nOn the other hand, higher taxes may unfairly affect low-income people. Many individuals choose unhealthy food because it is cheaper and more convenient. If prices increase, they may struggle to afford food options they enjoy or rely on. Additionally, simply inceasing taxes des not educate peple about nutrition. Without proper awareness, some people may continue eating unhealthy food despite higher costs.\r\n\r\nIn my opinion, taxing unhealthy food can be helpful, but it should be combined with other measures. Governments should also subsidize healthy food, provide nutrition education, and promote active lifestyles. This balanced approach would be more effective in encouraging people to make healthier choices.\r\n\r\nIn conclusion, while higher taxes on unhealthy food can support better eating habits, they should not be the only strategy used to improve public health.",
-      "wordCount": 270,
-      "timeSpent": "0m 15s",
-      "imagePath": null,
-      "pdfPath": "/uploads/pdfs/02a767e9-39e9-425b-9635-9578963657a1.pdf",
-      "submittedAt": "2026-02-02T06:03:00.674Z"
-    },
-    {
       "id": "879920b5-638c-4af2-9edc-d68252321d65",
       "studentName": "Ruta",
       "taskType": "Task 1",
