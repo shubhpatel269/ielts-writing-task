@@ -1,0 +1,358 @@
+/* IELTS Writing Practice - Plain CSS, no UI libraries */
+
+:root {
+  --bg: #f5f5f0;
+  --card: #fff;
+  --border: #ddd;
+  --primary: #1a5f4a;
+  --primary-hover: #144a3a;
+  --text: #222;
+  --muted: #666;
+  --danger: #c44;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  direction: ltr;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  direction: ltr;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--card);
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: var(--primary);
+}
+
+.app-header nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.app-header nav button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.app-header nav button:hover {
+  background: #f0f0f0;
+}
+
+.app-header nav button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Panels */
+.panel {
+  background: var(--card);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+.panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+/* Forms */
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 140px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: #d0d0d0;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Timer */
+.timer-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.timer-box span {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.timer-box .timer-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Task editor */
+.task-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.task-tabs button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.task-tabs button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.editor-section {
+  margin-bottom: 1rem;
+}
+
+.editor-section label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.editor-content {
+  width: 100%;
+  min-height: 280px;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate; /* force LTR block so cursor stays on right, text flows left-to-right */
+}
+
+.editor-content:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(26, 95, 74, 0.2);
+}
+
+/* No spellcheck / no suggestions as per spec */
+.editor-content,
+.editor-content * {
+  -webkit-user-modify: read-write-plaintext-only;
+}
+
+.uploaded-image-wrap {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.uploaded-image-wrap img {
+  max-width: 100%;
+  max-height: 280px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.word-count-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.word-count-bar .selected-count {
+  color: var(--primary);
+}
+
+/* Teacher table */
+.submissions-table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.submissions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.submissions-table th,
+.submissions-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.submissions-table th {
+  background: #f8f8f8;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.submissions-table td .actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Login form */
+.login-form {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.login-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.login-form .btn {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.error-msg {
+  color: var(--danger);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.success-msg {
+  color: var(--primary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Student info bar */
+.student-info-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.toolbar-bold {
+  padding: 0.35rem 0.6rem;
+  margin-right: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.toolbar-bold:hover {
+  background: #e8e8e8;
+}
