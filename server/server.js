@@ -8,6 +8,7 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -17,8 +18,8 @@ const PORT = process.env.PORT || 5000;
 const TEACHER_USERNAME = 'teacher';
 const TEACHER_PASSWORD = 'prarthana@123';
 
-// In-memory token for teacher session (simple auth for college project)
-let teacherToken = null;
+// Fixed token so teacher stays logged in across tab switches and server restarts (one-time login)
+const TEACHER_TOKEN = 'teacher-' + crypto.createHash('sha256').update(TEACHER_USERNAME + ':' + TEACHER_PASSWORD).digest('hex');
 
 // Paths
 const DB_PATH = path.join(__dirname, 'db.json');
@@ -69,7 +70,7 @@ function writeDb(data) {
 function isTeacherAuthorized(req) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) return false;
-  return authHeader.slice(7) === teacherToken;
+  return authHeader.slice(7) === TEACHER_TOKEN;
 }
 
 // ---------- Routes ----------
@@ -87,12 +88,11 @@ app.get('/', (req, res) => {
   `);
 });
 
-// POST /api/login - Teacher login
+// POST /api/login - Teacher login (returns fixed token so login persists across server restarts)
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body || {};
   if (username === TEACHER_USERNAME && password === TEACHER_PASSWORD) {
-    teacherToken = uuidv4();
-    return res.json({ success: true, token: teacherToken });
+    return res.json({ success: true, token: TEACHER_TOKEN });
   }
   res.status(401).json({ success: false, message: 'Invalid credentials' });
 });
@@ -176,13 +176,84 @@ app.post('/api/submit', (req, res) => {
   });
 });
 
-// GET /api/submissions - Teacher only
+// GET /api/submissions - Teacher only; supports ?search=&taskType=&date=&checked=; sorted latest first
 app.get('/api/submissions', (req, res) => {
   if (!isTeacherAuthorized(req)) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
   const db = readDb();
-  res.json(db.submissions);
+  let list = [...(db.submissions || [])];
+
+  const search = (req.query.search || '').trim().toLowerCase();
+  const taskType = (req.query.taskType || '').trim();
+  const date = (req.query.date || '').trim();
+  const checkedFilter = (req.query.checked || '').trim();
+
+  if (search) {
+    list = list.filter((s) => (s.studentName || '').toLowerCase().includes(search));
+  }
+  if (taskType) {
+    list = list.filter((s) => (s.taskType || '') === taskType);
+  }
+  if (date) {
+    list = list.filter((s) => {
+      const d = s.submittedAt ? s.submittedAt.slice(0, 10) : '';
+      return d === date;
+    });
+  }
+  if (checkedFilter === 'checked') {
+    list = list.filter((s) => s.checked === true);
+  } else if (checkedFilter === 'unchecked') {
+    list = list.filter((s) => s.checked !== true);
+  }
+
+  list.sort((a, b) => {
+    const tA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+    const tB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+    return tB - tA;
+  });
+  res.json(list);
+});
+
+// DELETE /api/submissions/:id - Teacher only
+app.delete('/api/submissions/:id', (req, res) => {
+  if (!isTeacherAuthorized(req)) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  const db = readDb();
+  const idx = db.submissions.findIndex((s) => s.id === req.params.id);
+  if (idx === -1) {
+    return res.status(404).json({ success: false, message: 'Submission not found' });
+  }
+  const sub = db.submissions[idx];
+  if (sub.pdfPath) {
+    const pdfFull = path.join(__dirname, sub.pdfPath);
+    if (fs.existsSync(pdfFull)) fs.unlinkSync(pdfFull);
+  }
+  if (sub.imagePath) {
+    const imgFull = path.join(__dirname, sub.imagePath);
+    if (fs.existsSync(imgFull)) fs.unlinkSync(imgFull);
+  }
+  db.submissions.splice(idx, 1);
+  writeDb(db);
+  res.json({ success: true });
+});
+
+// PATCH /api/submissions/:id - Teacher only; e.g. { "checked": true }
+app.patch('/api/submissions/:id', (req, res) => {
+  if (!isTeacherAuthorized(req)) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  const db = readDb();
+  const sub = db.submissions.find((s) => s.id === req.params.id);
+  if (!sub) {
+    return res.status(404).json({ success: false, message: 'Submission not found' });
+  }
+  if (req.body && typeof req.body.checked === 'boolean') {
+    sub.checked = req.body.checked;
+  }
+  writeDb(db);
+  res.json(sub);
 });
 
 // GET /api/download/:id - Teacher only; download PDF

@@ -39,9 +39,9 @@ function App() {
           <button
             type="button"
             className={view === 'teacher' ? 'active' : ''}
-            onClick={() => (teacherToken ? onTeacherLogout() : setView('teacher'))}
+            onClick={() => setView('teacher')}
           >
-            {teacherToken ? 'Logout (Teacher)' : 'Teacher'}
+            Teacher
           </button>
         </nav>
       </header>

@@ -13,14 +13,18 @@ Netlify cannot run your Express server or keep `db.json` and uploaded files. Use
 
 ### Option A: Render (free tier)
 
-1. Go to [render.com](https://render.com) and sign up.
-2. **New → Web Service**.
-3. Connect your Git repo (or upload the project).
-4. **Root directory:** `server` (so Render uses the `server` folder).
-5. **Build command:** `npm install`
-6. **Start command:** `npm start`
-7. **Environment:** Add `NODE_VERSION` = `18` (or your Node version).
-8. Deploy. Note the URL, e.g. `https://ielts-writing-xxxx.onrender.com`.
+**→ Full step-by-step: [RENDER.md](./RENDER.md)**
+
+Quick summary:
+
+1. Go to [render.com](https://render.com) and sign up (GitHub recommended).
+2. **New → Web Service** → connect your GitHub repo.
+3. **Root directory:** `server` (so Render uses the `server` folder).
+4. **Build command:** `npm install`  
+   **Start command:** `npm start`
+5. **Environment:** Add `NODE_VERSION` = `18` (optional).
+6. **Create Web Service** → wait for **Live** → copy the URL (e.g. `https://....onrender.com`).
+7. In Netlify, set **VITE_API_URL** to that URL and redeploy the frontend.
 
 **Important:** On the free tier, the server sleeps after inactivity; the first request after sleep can be slow.
 

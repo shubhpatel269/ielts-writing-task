@@ -5,6 +5,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { jsPDF } from 'jspdf';
 
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 // In production (Netlify), set VITE_API_URL to your backend URL
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -92,12 +101,26 @@ function TeacherPanel({ token, onLogin, onLogout }) {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [viewingPdf, setViewingPdf] = useState(null);
+  const [filterName, setFilterName] = useState('');
+  const [filterTaskType, setFilterTaskType] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterChecked, setFilterChecked] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
+
+  const debouncedName = useDebounce(filterName, 400);
 
   const fetchSubmissions = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/submissions`, {
+      const params = new URLSearchParams();
+      if (debouncedName.trim()) params.set('search', debouncedName.trim());
+      if (filterTaskType) params.set('taskType', filterTaskType);
+      if (filterDate) params.set('date', filterDate);
+      if (filterChecked) params.set('checked', filterChecked);
+      const qs = params.toString();
+      const url = `${API_BASE}/api/submissions${qs ? `?${qs}` : ''}`;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 401) {
@@ -111,11 +134,40 @@ function TeacherPanel({ token, onLogin, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [token, onLogout]);
+  }, [token, onLogout, debouncedName, filterTaskType, filterDate, filterChecked]);
 
   useEffect(() => {
     if (token) fetchSubmissions();
   }, [token, fetchSubmissions]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this submission? This cannot be undone.')) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${API_BASE}/api/submissions/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) fetchSubmissions();
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleToggleChecked = async (sub) => {
+    const next = !sub.checked;
+    try {
+      const res = await fetch(`${API_BASE}/api/submissions/${sub.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ checked: next }),
+      });
+      if (res.ok) fetchSubmissions();
+    } catch (_) {}
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -274,11 +326,45 @@ function TeacherPanel({ token, onLogin, onLogout }) {
     <div className="panel">
       <h2>Teacher Dashboard (Prarthana mam)</h2>
       <p style={{ color: 'var(--muted)', marginBottom: '1rem' }}>
-        View and download student submissions.
+        View and download student submissions. Latest submissions appear first.
       </p>
-      <button type="button" className="btn btn-secondary" onClick={fetchSubmissions} disabled={loading}>
-        Refresh
-      </button>
+
+      <div className="teacher-filters">
+        <input
+          type="text"
+          className="filter-input"
+          placeholder="Search by name..."
+          value={filterName}
+          onChange={(e) => setFilterName(e.target.value)}
+        />
+        <select
+          className="filter-select"
+          value={filterTaskType}
+          onChange={(e) => setFilterTaskType(e.target.value)}
+        >
+          <option value="">All tasks</option>
+          <option value="Task 1">Task 1</option>
+          <option value="Task 2">Task 2</option>
+        </select>
+        <input
+          type="date"
+          className="filter-input filter-date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+        />
+        <select
+          className="filter-select"
+          value={filterChecked}
+          onChange={(e) => setFilterChecked(e.target.value)}
+        >
+          <option value="">All</option>
+          <option value="checked">Checked</option>
+          <option value="unchecked">Unchecked</option>
+        </select>
+        <button type="button" className="btn btn-secondary" onClick={fetchSubmissions} disabled={loading}>
+          {loading ? 'Loading...' : 'Refresh'}
+        </button>
+      </div>
 
       {loading ? (
         <p style={{ marginTop: '1rem' }}>Loading submissions...</p>
@@ -292,14 +378,15 @@ function TeacherPanel({ token, onLogin, onLogout }) {
                 <th>Word Count</th>
                 <th>Time Spent</th>
                 <th>Submission Date</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {submissions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '1.5rem' }}>
-                    No submissions yet.
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '1.5rem' }}>
+                    No submissions match your filters.
                   </td>
                 </tr>
               ) : (
@@ -310,6 +397,29 @@ function TeacherPanel({ token, onLogin, onLogout }) {
                     <td>{sub.wordCount}</td>
                     <td>{sub.timeSpent}</td>
                     <td>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleString() : '-'}</td>
+                    <td>
+                      {sub.checked ? (
+                        <>
+                          <span className="badge badge-checked">Checked</span>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline"
+                            onClick={() => handleToggleChecked(sub)}
+                            title="Unmark"
+                          >
+                            Unmark
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline"
+                          onClick={() => handleToggleChecked(sub)}
+                        >
+                          Mark as checked
+                        </button>
+                      )}
+                    </td>
                     <td>
                       <div className="actions">
                         <button
@@ -333,6 +443,14 @@ function TeacherPanel({ token, onLogin, onLogout }) {
                           title="PDF with grammar mistakes underlined in red"
                         >
                           PDF (grammar)
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => handleDelete(sub.id)}
+                          disabled={deletingId === sub.id}
+                        >
+                          {deletingId === sub.id ? 'Deleting...' : 'Delete'}
                         </button>
                       </div>
                     </td>
